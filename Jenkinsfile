@@ -152,7 +152,7 @@ pipeline {
                     
                     // FIX: Convert the Secret to a String safely before calling .trim()
                     def aiKeyStr = params.GROQ_API_KEY_OVERRIDE as String
-                    def aiKeyFlag = aiKeyStr?.trim() ? "-Dgroq.api.key=${params.GROQ_API_KEY_OVERRIDE}" : ""
+                    def aiKeyFlag = aiKeyStr?.trim() ? "-Dai.api.key=${params.GROQ_API_KEY_OVERRIDE}" : ""
 
                     if (isUnix()) {
                         sh """
