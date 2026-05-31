@@ -42,12 +42,15 @@ How to Run
 Prerequisites
 
 Java 11+
+
 Maven 3.6+
+
 Google Chrome (latest)
 
 ---
 
 Run full suite 
+
 mvn clean test
 
 ---
@@ -66,17 +69,21 @@ mvn test -Dsurefire.suiteXmlFiles=testng.xml -Dgroups=e2e
 ---
 
 Run cross-browser parallel
+
 mvn test -Dsurefire.suiteXmlFiles=testng-parallel.xml
 
 ---
 
 Generate Allure Report
+
 allure serve target/allure-results
+
 # Opens: target/allure-report/index.html
 
 ---
 
 Override browser/headless from CLI
+
 mvn test -Dbrowser=firefox -Dheadless=true
 
 ---
@@ -95,6 +102,7 @@ mvn test -Dbrowser=firefox -Dheadless=true
 ---
 
 CI/CD
+
 Jenkins pipeline defined in Jenkinsfile:
 
 Checkout → Compile → Run Tests → Generate Allure → Archive Artifacts
