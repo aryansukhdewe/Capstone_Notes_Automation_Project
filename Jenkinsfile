@@ -9,7 +9,7 @@
 //
 // AI DEFECT TRIAGE INTEGRATION:
 // This pipeline is now configured to support Groq AI Automated Defect Analysis.
-// The AI API key is securely injected into the test execution via Jenkins parameters
+// The AI API key is securely injected into the test execution via Jenkins Credentials
 // to ensure enterprise-grade security (no hardcoded keys in version control).
 // ============================================================
 
@@ -23,15 +23,18 @@ pipeline {
     // ===== ENVIRONMENT VARIABLES =====
     // Centralized config: change once, applies to all stages
     environment {
-        JAVA_HOME         = tool 'JDK21'            // Must match Jenkins tool name
-        MAVEN_HOME        = tool 'Maven3'           // Must match Jenkins tool name
+        JAVA_HOME         = tool 'JDK21'
+        MAVEN_HOME        = tool 'Maven3'
         APP_URL           = 'https://practice.expandtesting.com/notes/app/login'
         API_URL           = 'https://practice.expandtesting.com/notes/api'
         BROWSER           = 'chrome'
-        HEADLESS          = 'true'                  // Always headless in CI
+        HEADLESS          = 'true'
         ALLURE_RESULTS    = 'target/allure-results'
         REPORT_DIR        = 'reports'
         TIMESTAMP         = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date())
+        
+        // Fetch the AI key securely from the Jenkins Credentials Vault
+        GROQ_API_KEY_VAULT = credentials('GROQ_API_KEY')
     }
 
     // ===== BUILD PARAMETERS =====
@@ -46,9 +49,6 @@ pipeline {
         string(name: 'BROWSER_OVERRIDE',
                defaultValue: '',
                description: 'Override browser (leave blank to use config)')
-        password(name: 'GROQ_API_KEY_OVERRIDE', 
-               defaultValue: '', 
-               description: 'Temporary AI Key for this specific run (Masked in logs)')
     }
 
     // ===== TRIGGERS =====
@@ -140,7 +140,6 @@ pipeline {
         }
 
         // ----------------------------------------------------------
-        // ----------------------------------------------------------
         stage('Run Tests') {
         // PURPOSE: Execute the automation suite.
         // ----------------------------------------------------------
@@ -150,9 +149,8 @@ pipeline {
                     def suite = params.RUN_PARALLEL ? 'testng-parallel.xml' : params.TEST_SUITE
                     def browserFlag = params.BROWSER_OVERRIDE?.trim() ? "-Dbrowser=${params.BROWSER_OVERRIDE}" : "-Dbrowser=${BROWSER}"
                     
-                    // FIX: Convert the Secret to a String safely before calling .trim()
-                    def aiKeyStr = params.GROQ_API_KEY_OVERRIDE as String
-                    def aiKeyFlag = aiKeyStr?.trim() ? "-Dai.api.key=${params.GROQ_API_KEY_OVERRIDE}" : ""
+                    // Use the vault credential automatically
+                    def aiKeyFlag = "-Dai.api.key=${env.GROQ_API_KEY_VAULT}"
 
                     if (isUnix()) {
                         sh """
