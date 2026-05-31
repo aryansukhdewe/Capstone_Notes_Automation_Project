@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    logback.xml — Logging Configuration
+    =====================================
+    WHY LOGBACK:
+    SLF4J is a logging facade (interface). Logback is the implementation.
+    We define here:
+    - Where logs go (console + file)
+    - What format (timestamp, level, class, message)
+    - What level threshold (INFO in CI, DEBUG locally)
+
+    WHY FILE APPENDER:
+    Console output disappears when a Jenkins build closes. The file appender
+    writes to a persistent log file that can be archived as a Jenkins artifact
+    and downloaded later for debugging failed tests.
+
+    WHY ROLLING FILE:
+    Without rolling, the log file grows indefinitely. RollingFileAppender
+    creates a new file each day and deletes files older than 7 days,
+    keeping disk usage bounded.
+-->
+<configuration>
+
+    <!-- ===== CONSOLE APPENDER ===== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <!--
+                Pattern explained:
+                %d{HH:mm:ss.SSS}  → Timestamp (hours:minutes:seconds.milliseconds)
+                [%thread]         → Thread name (shows parallel test threads)
+                %-5level          → Log level, left-padded to 5 chars (INFO , WARN , ERROR)
+                %logger{36}       → Logger class name, truncated to 36 chars
+                %msg%n            → The actual log message + newline
+            -->
+        </encoder>
+    </appender>
+
+    <!-- ===== FILE APPENDER (Rolling Daily) ===== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>target/automation.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>target/logs/automation.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory> <!-- Keep 7 days of logs -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ===== LOGGER LEVELS ===== -->
+
+    <!-- Our framework: DEBUG level (verbose, useful for development) -->
+    <logger name="com.capstone" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- RestAssured: INFO only (too verbose at DEBUG) -->
+    <logger name="io.restassured" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- Selenium/WebDriver: WARN only (very noisy at lower levels) -->
+    <logger name="org.openqa.selenium" level="WARN" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- WebDriverManager: INFO -->
+    <logger name="io.github.bonigarcia" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- Root logger: everything else at INFO -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

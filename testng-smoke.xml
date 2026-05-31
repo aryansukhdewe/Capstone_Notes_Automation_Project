@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+    testng-smoke.xml — Smoke Test Suite (fast pre-deployment sanity check)
+    =====================================================================
+    WHY A SEPARATE SMOKE SUITE:
+    Smoke tests run in ~2 minutes and cover the most critical paths.
+    Jenkins can run this on EVERY commit; the full regression runs nightly.
+    If smoke fails, the full regression is skipped — fast feedback.
+
+    SMOKE SCOPE: Login, create note, API health, basic E2E sync.
+-->
+<suite name="Notes App — Smoke Suite" verbose="1" parallel="tests" thread-count="2">
+
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <test name="Smoke — UI Critical Path">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run><include name="smoke"/></run>
+        </groups>
+        <classes>
+            <class name="com.capstone.tests.ui.LoginTests"/>
+            <class name="com.capstone.tests.ui.NotesUITests"/>
+        </classes>
+    </test>
+
+    <test name="Smoke — API Critical Path">
+        <groups>
+            <run><include name="smoke"/></run>
+        </groups>
+        <classes>
+            <class name="com.capstone.tests.api.NotesApiTests"/>
+        </classes>
+    </test>
+
+</suite>

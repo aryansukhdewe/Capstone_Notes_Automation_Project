@@ -1,0 +1,59 @@
+{
+  "_comment": "WHY JSON FOR TEST DATA: Keeping test data external from code follows the principle of separation of concerns. Data changes don't require recompilation. Multiple datasets support Data Provider patterns in TestNG.",
+
+  "users": {
+    "valid_user": {
+      "name": "Aryan Bandu Sukhdewe",
+      "email": "pbsbandu@gmail.com",
+      "password": "Aryan@123"
+    },
+    "invalid_user": {
+      "email": "invalid@notexist.com",
+      "password": "wrongpassword"
+    },
+    "empty_user": {
+      "email": "",
+      "password": ""
+    }
+  },
+
+  "notes": {
+    "home_note": {
+      "category": "Home",
+      "title": "Buy Groceries",
+      "description": "Milk, Bread, Eggs, Butter from the supermarket"
+    },
+    "work_note": {
+      "category": "Work",
+      "title": "Sprint Planning Meeting",
+      "description": "Prepare backlog items and user stories for Q3 sprint"
+    },
+    "personal_note": {
+      "category": "Personal",
+      "title": "Book Dentist Appointment",
+      "description": "Schedule annual checkup for next week"
+    },
+    "update_note": {
+      "title": "Updated Note Title",
+      "description": "This description was updated via automation"
+    }
+  },
+
+  "negative_scenarios": {
+    "missing_title": {
+      "category": "Home",
+      "title": "",
+      "description": "Description without a title"
+    },
+    "very_long_title": {
+      "category": "Work",
+      "title": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "description": "Testing boundary for title field length"
+    },
+    "special_characters": {
+      "category": "Personal",
+      "title": "<script>alert('xss')</script>",
+      "description": "Testing XSS injection prevention"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "selenium": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@angiejones/mcp-selenium@latest"
+      ],
+      "env": {
+        "GEMINI_API_KEY": "YOUR_GEMINI_API_KEY_HERE",
+        "GEMINI_MODEL": "gemini-2.0-flash-thinking-exp",
+        "GEMINI_THINKING": "true"
+      }
+    }
+  }
+}

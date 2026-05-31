@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+    testng.xml — Master Test Suite Configuration
+    =============================================
+    WHY THIS FILE:
+    Defines WHAT to run, HOW MANY threads, and WHICH groups.
+    Maven Surefire reads this. CI pipelines override via -Dsurefire.suiteXmlFiles=testng-smoke.xml.
+
+    parallel="tests" → Each <test> block runs in its own thread simultaneously.
+    thread-count="3" → Max 3 concurrent threads (safe for 2GB CI RAM with Chrome @ ~200MB each).
+-->
+<suite name="Notes App — Full Regression Suite"
+       verbose="2"
+       parallel="tests"
+       thread-count="3"
+       data-provider-thread-count="3">
+
+    <listeners>
+        <!-- Allure: auto-collects results for HTML report generation -->
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <!-- UI Tests: FR-01, FR-02, FR-03, FR-09 -->
+    <test name="UI Tests — Authentication and Notes Management" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="com.capstone.tests.ui.LoginTests"/>
+            <class name="com.capstone.tests.ui.NotesUITests"/>
+        </classes>
+    </test>
+
+    <!-- API Tests: FR-04, FR-05, FR-06, FR-08 -->
+    <test name="API Tests — RestAssured Validation Suite" preserve-order="true">
+        <classes>
+            <class name="com.capstone.tests.api.NotesApiTests"/>
+        </classes>
+    </test>
+
+    <!-- Hybrid E2E: FR-05, FR-07 (UI+API data synchronisation) -->
+    <test name="Hybrid E2E — UI and API Synchronisation" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="com.capstone.tests.e2e.HybridE2ETests"/>
+        </classes>
+    </test>
+
+    <!-- Performance: FR-08 — Response time and UI timing -->
+    <test name="Performance Tests — API and UI Timing" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="com.capstone.tests.performance.PerformanceTests"/>
+        </classes>
+    </test>
+
+</suite>

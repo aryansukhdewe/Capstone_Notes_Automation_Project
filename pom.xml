@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.capstone</groupId>
+    <artifactId>notes-automation</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>Capstone: Notes App Automation Suite</name>
+    <description>Capgemini QA Capstone — Selenium + Java + RestAssured + TestNG</description>
+
+    <!--
+        WHY CENTRALISED PROPERTIES:
+        Version numbers in one place. Upgrading Selenium means changing ONE line,
+        not hunting through 10 dependency blocks. Maven resolves ${selenium.version}
+        at build time wherever it appears.
+    -->
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Core dependency versions -->
+        <selenium.version>4.18.1</selenium.version>
+        <testng.version>7.9.0</testng.version>
+        <restassured.version>5.4.0</restassured.version>
+        <allure.version>2.25.0</allure.version>
+        <allure.testng.version>2.25.0</allure.testng.version>
+        <jackson.version>2.16.1</jackson.version>
+        <webdrivermanager.version>5.7.0</webdrivermanager.version>
+        <extentreports.version>5.1.1</extentreports.version>
+        <aspectj.version>1.9.21</aspectj.version>
+        <slf4j.version>2.0.12</slf4j.version>
+        <logback.version>1.4.14</logback.version>
+        <poi.version>5.2.5</poi.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- ======================================================
+             SELENIUM WEBDRIVER
+             WHY: Core browser automation engine. Version 4.x adds
+             W3C protocol compliance, BiDi support, and CDP access.
+             selenium-java pulls in all browser-specific bindings.
+        ====================================================== -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             WEBDRIVERMANAGER
+             WHY: Auto-downloads the correct ChromeDriver / GeckoDriver
+             matching the installed browser version. Eliminates manual
+             driver management — critical for CI where browser updates
+             happen automatically and can break hardcoded driver versions.
+        ====================================================== -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>${webdrivermanager.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             TESTNG
+             WHY TESTNG over JUnit:
+             1. Native parallel execution (parallel="tests/methods/classes")
+             2. @DataProvider for parameterized tests
+             3. Flexible XML suite configuration
+             4. @Parameters injection from testng.xml
+             5. Priority-based test ordering
+             6. Group-based selective execution (smoke vs regression)
+        ====================================================== -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             REST ASSURED
+             WHY: Industry-standard Java DSL for REST API testing.
+             Fluent given/when/then syntax mirrors BDD.
+             Built-in: JSON schema validation, response time assertion,
+             authentication helpers, logging, Allure filter integration.
+        ====================================================== -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${restassured.version}</version>
+        </dependency>
+        <!-- JSON Schema Validator: validates API response structure -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${restassured.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             ALLURE REPORTING
+             WHY: Rich HTML reports with history trends, environment info,
+             screenshots embedded inline, and CI/Jenkins integration.
+             allure-testng hooks into TestNG lifecycle automatically.
+             allure-rest-assured filter auto-attaches request/response.
+        ====================================================== -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure.testng.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-rest-assured</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             ASPECTJ WEAVER
+             WHY: Allure uses AspectJ compile-time weaving to intercept
+             @Step, @Attachment annotations. Without aspectjweaver on
+             the JVM agent path, Allure annotations are silently ignored
+             and steps don't appear in the report.
+        ====================================================== -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ======================================================
+             EXTENT REPORTS
+             WHY: Dual reporting strategy. Extent generates a single
+             self-contained HTML file that stakeholders can open without
+             any server or CLI tool. Perfect for email distribution.
+        ====================================================== -->
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>${extentreports.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             JACKSON DATABIND
+             WHY: Reads test data from testdata.json into Java objects.
+             ObjectMapper is thread-safe — safe to share across parallel
+             tests as a static instance. De-facto standard for JSON in Java.
+        ====================================================== -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             LOGGING: SLF4J + LOGBACK
+             WHY SLF4J FACADE: Allows swapping logging implementations
+             (Logback → Log4j2) without changing any application code.
+             WHY LOGBACK: Most performant SLF4J implementation, supports
+             rolling file appenders, pattern layouts, and async logging.
+        ====================================================== -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <!-- ======================================================
+             APACHE POI (Excel)
+             WHY: Enables reading test data from .xlsx files via
+             ExcelDataReader utility. Some test data sets are maintained
+             as Excel sheets by BAs — POI bridges them into Java.
+        ====================================================== -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- ======================================================
+                 MAVEN SUREFIRE PLUGIN
+                 WHY: Executes TestNG test suites during 'mvn test'.
+                 Configured to:
+                 1. Read testng.xml for suite definition
+                 2. Pass Allure results directory as system property
+                 3. Use argLine to load aspectjweaver as Java agent
+                    (required for Allure @Step annotation weaving)
+                 4. Set maven.test.failure.ignore=true so pipeline
+                    continues to reporting stages even on test failures
+            ====================================================== -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>${surefire.suiteXmlFiles}</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
+                    </argLine>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                        <browser>${browser}</browser>
+                        <headless>${headless}</headless>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <!-- ======================================================
+                 ALLURE MAVEN PLUGIN
+                 WHY: 'mvn allure:report' converts the raw JSON in
+                 target/allure-results into the full HTML report at
+                 target/allure-report/index.html. Used in Jenkins
+                 'Generate Allure Report' stage.
+            ====================================================== -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
+                <configuration>
+                    <reportVersion>${allure.version}</reportVersion>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+                </configuration>
+            </plugin>
+
+            <!-- ======================================================
+                 MAVEN COMPILER PLUGIN
+                 WHY EXPLICIT: Without this, Maven may default to Java 5
+                 compatibility even when Java 11 is installed.
+                 Text blocks (""") require source/target 11+.
+            ====================================================== -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <!-- ======================================================
+         DEFAULT PROPERTIES
+         WHY: These values apply when -D flags are NOT passed.
+         'mvn test' uses chrome + visible window.
+         'mvn test -Dheadless=true' overrides for CI.
+    ====================================================== -->
+    <profiles>
+        <profile>
+            <id>default-suite</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <properties>
+                <surefire.suiteXmlFiles>testng.xml</surefire.suiteXmlFiles>
+                <browser>chrome</browser>
+                <headless>false</headless>
+            </properties>
+        </profile>
+        <profile>
+            <id>smoke</id>
+            <properties>
+                <surefire.suiteXmlFiles>testng-smoke.xml</surefire.suiteXmlFiles>
+                <browser>chrome</browser>
+                <headless>true</headless>
+            </properties>
+        </profile>
+        <profile>
+            <id>parallel</id>
+            <properties>
+                <surefire.suiteXmlFiles>testng-parallel.xml</surefire.suiteXmlFiles>
+                <browser>chrome</browser>
+                <headless>true</headless>
+            </properties>
+        </profile>
+        <profile>
+            <id>ci</id>
+            <properties>
+                <surefire.suiteXmlFiles>testng.xml</surefire.suiteXmlFiles>
+                <browser>chrome</browser>
+                <headless>true</headless>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

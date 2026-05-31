@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+    testng-parallel.xml — Cross-Browser Parallel Execution Suite
+    =============================================================
+    WHY A SEPARATE SUITE FILE:
+    Cross-browser parallel execution is an "Advanced" Day 3 requirement.
+    We keep it in a separate XML so the default build (testng.xml) isn't
+    affected. Jenkins can trigger this specifically when cross-browser
+    validation is required (e.g. before a release).
+
+    WHAT HAPPENS HERE:
+    - Three <test> blocks: one each for Chrome, Firefox, Edge
+    - parallel="tests" means all three browsers run simultaneously
+    - Each test block passes a different "browser" parameter
+    - The BaseTest @BeforeMethod reads this parameter and spins up
+      the correct driver via DriverManager.initDriver(browser)
+
+    RESULT: Same test suite validating 3 browsers at the same time.
+    A 10-minute suite now finishes in ~10 minutes instead of 30.
+-->
+
+<suite name="Cross-Browser Parallel Suite"
+       verbose="1"
+       parallel="tests"
+       thread-count="3">
+
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <!-- Chrome run -->
+    <test name="Chrome — Smoke Tests">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="com.capstone.tests.ui.LoginTests">
+                <methods>
+                    <include name="testValidLogin"/>
+                    <include name="testInvalidLogin"/>
+                </methods>
+            </class>
+            <class name="com.capstone.tests.ui.NotesUITests">
+                <methods>
+                    <include name="testCreateNoteAndVerifyInList"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- Firefox run -->
+    <test name="Firefox — Smoke Tests">
+        <parameter name="browser" value="firefox"/>
+        <classes>
+            <class name="com.capstone.tests.ui.LoginTests">
+                <methods>
+                    <include name="testValidLogin"/>
+                    <include name="testInvalidLogin"/>
+                </methods>
+            </class>
+            <class name="com.capstone.tests.ui.NotesUITests">
+                <methods>
+                    <include name="testCreateNoteAndVerifyInList"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- Edge run -->
+    <test name="Edge — Smoke Tests">
+        <parameter name="browser" value="edge"/>
+        <classes>
+            <class name="com.capstone.tests.ui.LoginTests">
+                <methods>
+                    <include name="testValidLogin"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+</suite>
